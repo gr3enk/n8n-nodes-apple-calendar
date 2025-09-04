@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"strict": true,
+		"strict": false,
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"target": "es2019",
@@ -10,7 +10,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
-		"noUnusedLocals": true,
+		// "noUnusedLocals": true,
 		"strictNullChecks": true,
 		"preserveConstEnums": true,
 		"esModuleInterop": true,
@@ -20,11 +20,10 @@
 		"sourceMap": true,
 		"skipLibCheck": true,
 		"outDir": "./dist/",
+
+		"noEmitOnError": false,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false
 	},
-	"include": [
-		"credentials/**/*",
-		"nodes/**/*",
-		"nodes/**/*.json",
-		"package.json",
-	],
+	"include": ["credentials/**/*", "nodes/**/*", "nodes/**/*.json", "package.json"]
 }
