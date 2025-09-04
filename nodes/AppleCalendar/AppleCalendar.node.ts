@@ -8,9 +8,12 @@ import {
 import { nodeConnectionTypes, NodeApiError, NodeOperationError } from 'n8n-workflow';
 import { calendarFields, calendarOperations } from './CalendarDescription';
 import {
+	Calendar,
 	dateObjectToISO,
+	getCalendars,
 	getCalendarsAsList,
 	getEvents,
+	getPrincipal,
 	getTimezones,
 	ICalendarEvent,
 	isoToCalDavFormat,
@@ -51,10 +54,10 @@ export class AppleCalendar implements INodeType {
 						name: 'Calendar',
 						value: 'calendar',
 					},
-					// {
-					// 	name: 'Account',
-					// 	value: 'account',
-					// },
+					{
+						name: 'Account',
+						value: 'account',
+					},
 				],
 				default: 'calendar',
 			},
@@ -88,7 +91,7 @@ export class AppleCalendar implements INodeType {
 
 		for (let i = 0; i < length; i++) {
 			try {
-				if (resource === 'calendar' && operation === 'getEvents') {
+				if (resource === 'calendar') {
 					const calendarId = decodeURIComponent(
 						this.getNodeParameter('calendar', i, '', { extractValue: true }) as string,
 					);
@@ -97,38 +100,57 @@ export class AppleCalendar implements INodeType {
 					const options = this.getNodeParameter('options', i);
 					const outputFormat = (options.outputFormat as string) || 'basic';
 
-					const basicKeys = [
-						'uid',
-						'summary',
-						'description',
-						'start',
-						'end',
-						'location',
-						'created',
-						'lastmodified',
-					];
+					if (operation === 'getEvents') {
+						const basicKeys = [
+							'uid',
+							'summary',
+							'description',
+							'start',
+							'end',
+							'location',
+							'created',
+							'lastmodified',
+						];
 
-					const events: ICalendarEvent[] = await getEvents.call(
-						this,
-						calendarId,
-						isoToCalDavFormat(timeMin),
-						isoToCalDavFormat(timeMax),
-					);
-
-					if (outputFormat === 'basic') {
-						returnData.push(
-							...events.map((e) => {
-								return {
-									json: Object.fromEntries(
-										Object.entries(e).filter(([key]) => basicKeys.includes(key)),
-									),
-								};
-							}),
+						const events: ICalendarEvent[] = await getEvents.call(
+							this,
+							calendarId,
+							isoToCalDavFormat(timeMin),
+							isoToCalDavFormat(timeMax),
 						);
-					} else {
+
+						if (outputFormat === 'basic') {
+							returnData.push(
+								...events.map((e) => {
+									return {
+										json: Object.fromEntries(
+											Object.entries(e).filter(([key]) => basicKeys.includes(key)),
+										),
+									};
+								}),
+							);
+						} else {
+							returnData.push(
+								...events.map((e) => {
+									return { json: e };
+								}),
+							);
+						}
+					}
+				}
+
+				if (resource === 'account') {
+					const principal = await getPrincipal.call(this);
+
+					if (operation === 'getPrincipal') {
+						returnData.push({ json: { 'user-principal': principal } });
+					}
+
+					if (operation === 'getCalendars') {
+						const calendars: Calendar[] = await getCalendars.call(this, principal);
 						returnData.push(
-							...events.map((e) => {
-								return { json: e };
+							...calendars.map((c) => {
+								return { json: { ...c, 'user-principal': principal } };
 							}),
 						);
 					}

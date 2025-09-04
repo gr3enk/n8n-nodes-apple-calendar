@@ -22,6 +22,32 @@ export const calendarOperations: INodeProperties[] = [
 		],
 		default: 'getEvents',
 	},
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: {
+				resource: ['account'],
+			},
+		},
+		options: [
+			{
+				name: 'Get Principal',
+				value: 'getPrincipal',
+				description: 'Get the user principal of the Apple Calendar',
+				action: 'Get user principal of the apple calendar',
+			},
+			{
+				name: 'Get Calendars',
+				value: 'getCalendars',
+				description: 'Get the calendars of the Apple Calendar',
+				action: 'Get calendars of the apple calendar',
+			},
+		],
+		default: 'getCalendars',
+	},
 ];
 
 export const calendarFields: INodeProperties[] = [

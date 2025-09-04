@@ -171,7 +171,7 @@ export function findXmlValues(xml: string, path: string[]): string[] {
 	return nodes.map((n) => (typeof n === 'string' ? n : JSON.stringify(n)));
 }
 
-interface Calendar {
+export interface Calendar {
 	displayName: string;
 	href: string;
 	id: string;
